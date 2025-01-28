@@ -5,6 +5,7 @@ const User = require("./models/user");
 
 app.use(express.json());
 
+//Add a user to database
 app.post("/signup", async (req, res) => {
     //Creating a new instance of the User model
     const user = new User(req.body);
@@ -44,7 +45,8 @@ app.get("/feed", async (req, res) => {
     }
 })
 
-app.delete("/user", async (req, res)=>{
+//Delete a user from database
+app.delete("/user", async (req, res) => {
     const userId = req.body.userId;
     try {
         const user = await User.findByIdAndDelete(userId);
@@ -55,12 +57,24 @@ app.delete("/user", async (req, res)=>{
     }
 
 })
-app.patch("/user", async (req, res)=>{
-    const userId = req.body.userId;
+
+//Update a user
+app.patch("/user/:userId", async (req, res) => {
+    const userId = req.params?.userId;
     const data = req.body;
     try {
-        await User.findByIdAndUpdate({_id: userId}, data, {runValidators: true});
-        
+        const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
+        const isUpdateAllowed = Object.keys(data).every((k) =>
+            ALLOWED_UPDATES.includes(k) );
+        if (!isUpdateAllowed) {
+            throw new Error("update not allowed");
+        }
+        if(data?.skills.length>10){
+            throw new Error("skills can't be more than 10");
+        }
+
+        await User.findByIdAndUpdate({ _id: userId }, data, { runValidators: true });
+
         res.send("User updated successfully...");
     } catch (err) {
         res.status(400).send("User not updated.." + err.message);
