@@ -13,11 +13,11 @@ app.post("/signup", async (req, res) => {
         //validation of the data
         validateSignupData(req);
 
-        const {firstName, lastName, emailId, password} = req.body;
+        const { firstName, lastName, emailId, password } = req.body;
 
         //Encrypt the password
         const passwordHash = await bcrypt.hash(password, 10);
-        
+
         //Creating a new instance of the User model
         const user = new User({
             firstName, lastName, emailId, password: passwordHash,
@@ -29,6 +29,26 @@ app.post("/signup", async (req, res) => {
         res.status(400).send("Error: " + err.message);
     }
 
+})
+
+//User login
+app.use("/login", async (req, res) => {
+    try{
+        const {emailId, password} = req.body;
+        const user = await User.findOne({emailId: emailId});
+        if(!user){
+            throw new Error("Invalid credentials!!");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if(isPasswordValid){
+            res.send("Login successfull...");
+        } else{
+            throw new Error("Invalid credentials!!");
+        }
+    }catch (err) {
+        res.status(400).send("Error: " + err.message);
+    }
 })
 
 //get user by email
@@ -77,11 +97,11 @@ app.patch("/user/:userId", async (req, res) => {
     try {
         const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
         const isUpdateAllowed = Object.keys(data).every((k) =>
-            ALLOWED_UPDATES.includes(k) );
+            ALLOWED_UPDATES.includes(k));
         if (!isUpdateAllowed) {
             throw new Error("update not allowed");
         }
-        if(data?.skills.length>10){
+        if (data?.skills.length > 10) {
             throw new Error("skills can't be more than 10");
         }
 
