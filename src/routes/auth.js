@@ -31,31 +31,31 @@ authRouter.post("/signup", async (req, res) => {
 
 //User login
 authRouter.post("/login", async (req, res) => {
-    try{
-        const {emailId, password} = req.body;
-        const user = await User.findOne({emailId: emailId});
-        if(!user){
+    try {
+        const { emailId, password } = req.body;
+        const user = await User.findOne({ emailId: emailId });
+        if (!user) {
             throw new Error("Invalid credentials!!");
         }
 
         const isPasswordValid = await user.validatePassword(password);
-        if(isPasswordValid){
+        if (isPasswordValid) {
             // create a JWT token
             const token = await user.getJWT();
 
             // add the token to cookie and send back to the User
             res.cookie("token", token);
             res.send("Login successfull...");
-        } else{
+        } else {
             throw new Error("Invalid credentials!!");
         }
-    }catch (err) {
+    } catch (err) {
         res.status(400).send("Error: " + err.message);
     }
 })
 
 //User logout
-authRouter.post("/logout", async (req, res) =>{
+authRouter.post("/logout", async (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now()),
     });
