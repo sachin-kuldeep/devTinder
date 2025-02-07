@@ -25,7 +25,7 @@ requestRouter.post(
       //check for toUser
       const toUser = await User.findById(toUserId);
       if (!toUser) {
-        return res.status(404).json({ message: "User not found!" });
+        return res.status(404).json({ message: "User not found!!!" });
       }
 
       //check for existing request
@@ -39,7 +39,7 @@ requestRouter.post(
       if (existingConnectionRequest) {
         return res
           .status(400)
-          .send({ message: "Connection request already sent!!" });
+          .send({ message: "Connection request already sent!!!" });
       }
 
       const connectionRequest = new ConnectionRequest({
@@ -50,7 +50,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: "Connection request sent successfully!",
+        message: "Connection request sent successfully...",
         data,
       });
     } catch (err) {
@@ -66,11 +66,11 @@ requestRouter.post(
   async (req, res) => {
     try {
       const loggedInUser = req.user;
-      const {status, requestId} = req.params;
+      const { status, requestId } = req.params;
 
       const allowedStatus = ["accepted", "rejected"];
-      if(!allowedStatus.includes(status)){
-        return res.status(404).send("Status not valid!");
+      if (!allowedStatus.includes(status)) {
+        return res.status(404).send("Status not valid!!!");
       }
 
       const connectionRequest = await ConnectionRequest.findOne({
@@ -79,15 +79,14 @@ requestRouter.post(
         status: "interested",
       });
 
-      if(!connectionRequest){
-        return res.status(404).send("Connection request not found!");
+      if (!connectionRequest) {
+        return res.status(404).send("Connection request not found!!!");
       }
 
       connectionRequest.status = status;
       const data = await connectionRequest.save();
 
-      res.json({message: "Connection request " + status, data});
-
+      res.json({ message: "Connection request " + status, data });
     } catch (err) {
       res.status(400).send("ERROR: " + err.message);
     }
