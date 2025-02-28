@@ -57,7 +57,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     const loggedInUser = req.user;
 
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
 
@@ -65,7 +65,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
     }).select("fromUserId toUserId");
 
-    // Create a set of users whose profile shouldn't be visible to loggedInUser
+    // Create a set of users whose profile shouldn't be visible to loggedInUser (means freinds of the loggedInUser)
     const hideUsersFromFeed = new Set();
     connectionRequests.forEach((req) => {
       hideUsersFromFeed.add(req.fromUserId.toString());
@@ -83,7 +83,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.send(users);
+    res.json({ data: users });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
